@@ -83,7 +83,7 @@ defmodule Affirm.API do
   end
 
   @spec options() :: keyword()
-  def options do
+  defp options do
     [
       {:timeout, 15_000},
       {:recv_timeout, 15_000}
