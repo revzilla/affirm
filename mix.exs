@@ -1,7 +1,7 @@
 defmodule Affirm.Mixfile do
   use Mix.Project
 
-  @version "0.1.0"
+  @version "0.1.1"
 
   def project do
     [app: :affirm,
@@ -17,7 +17,7 @@ defmodule Affirm.Mixfile do
   end
 
   def application do
-    [applications: [:logger, :httpoison, :poison]]
+    [applications: [:logger, :httpoison, :jason]]
   end
 
   defp description do
