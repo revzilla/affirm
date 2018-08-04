@@ -15,7 +15,7 @@ defmodule Affirm.API do
   and takes an optional `order_id`. If the token is valid, the request will return
   a `charge_id` that should be saved for future transactions.
   """
-  @spec authorize(map) :: {:ok, Response.t} | {:error, String.t}
+  @spec authorize(map) :: {:ok, Response.t()} | {:error, String.t()}
   def authorize(params) do
     :post
     |> request("", params, headers, options)
@@ -26,7 +26,7 @@ defmodule Affirm.API do
   Capture takes a `charge_id` and optional map of post data. Will return a `Affirm.Response`
   struct containing details of the successful capture transaction.
   """
-  @spec capture(String.t, map) :: {:ok, Response.t} | {:error, String.t}
+  @spec capture(String.t(), map) :: {:ok, Response.t()} | {:error, String.t()}
   def capture(charge_id, params) do
     :post
     |> request("/#{charge_id}/capture", params, headers, options)
@@ -37,7 +37,7 @@ defmodule Affirm.API do
   Capture takes a `charge_id`. Will return a `Affirm.Response`
   struct containing details of the successful void transaction.
   """
-  @spec void(String.t) :: {:ok, Response.t} | {:error, String.t}
+  @spec void(String.t()) :: {:ok, Response.t()} | {:error, String.t()}
   def void(charge_id) do
     :post
     |> request("/#{charge_id}/void", %{}, headers, options)
@@ -48,7 +48,7 @@ defmodule Affirm.API do
   Refund takes a `charge_id` and a map containing a refund `amount`.
   Will return a `Affirm.Response` struct containing details of the successful return transaction.
   """
-  @spec refund(String.t, map) :: {:ok, Response.t} | {:error, String.t}
+  @spec refund(String.t(), map) :: {:ok, Response.t()} | {:error, String.t()}
   def refund(charge_id, params) do
     :post
     |> request("/#{charge_id}/refund", params, headers, options)
@@ -60,18 +60,20 @@ defmodule Affirm.API do
   Will return an `Affirm.Response` struct containing current charge status.
   Used to prevent duplicate charge attempts.
   """
-  @spec read(String.t) :: {:ok, Response.t} | {:error, String.t}
+  @spec read(String.t()) :: {:ok, Response.t()} | {:error, String.t()}
   def read(charge_id) do
     :get
     |> request("/#{charge_id}", %{}, headers, options)
     |> parse_response(false)
   end
 
-  @spec parse_response(tuple, boolean) :: {:ok, Response.t} | {:error, String.t}
+  @spec parse_response(tuple, boolean) :: {:ok, Response.t()} | {:error, String.t()}
   defp parse_response(response, is_transactional \\ true)
+
   defp parse_response({:ok, body}, is_transactional) do
     {:ok, Response.new(body, is_transactional)}
   end
+
   defp parse_response({:error, reason}, _), do: {:error, reason}
 
   @spec headers() :: list(tuple)
@@ -95,6 +97,6 @@ defmodule Affirm.API do
     "Basic " <> :base64.encode("#{user}:#{pass}")
   end
 
-  defp public_key,  do: Affirm.get_env(:public_key)
+  defp public_key, do: Affirm.get_env(:public_key)
   defp private_key, do: Affirm.get_env(:private_key)
 end
