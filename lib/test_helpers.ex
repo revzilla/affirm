@@ -2,7 +2,7 @@ defmodule Affirm.TestHelpers do
   @doc "Creates a Bypass listener to act as a double for the actual Affirm API endpoints"
   @spec build_bypass :: any
   def build_bypass do
-    bypass = Bypass.open
+    bypass = Bypass.open()
     Application.put_env(:affirm, :url, "http://localhost:#{bypass.port}")
     bypass
   end
@@ -14,16 +14,16 @@ defmodule Affirm.TestHelpers do
     nil
   end
 
-  @spec simulate_service_response(any, Plug.Conn.status, String.t, (Plug.Conn.t -> boolean)) :: no_return
+  @spec simulate_service_response(any, Plug.Conn.status(), String.t(), (Plug.Conn.t() -> boolean)) :: no_return
   def simulate_service_response(bypass, status, body, fun) when is_function(fun) do
-    Bypass.expect(bypass, fn(conn) ->
-      if fun.(conn |> Plug.Conn.fetch_query_params) do
+    Bypass.expect(bypass, fn conn ->
+      if fun.(conn |> Plug.Conn.fetch_query_params()) do
         Plug.Conn.resp(conn, status, body)
       end
     end)
   end
 
-  @spec successful_authorization_response_string(String.t) :: String.t
+  @spec successful_authorization_response_string(String.t()) :: String.t()
   def successful_authorization_response_string(amount, order_id \\ nil) do
     ~s(
         {"id":"ALO4-UVGR","created":"2016-03-18T19:19:04Z","currency":"USD","amount":#{amount},
@@ -40,30 +40,30 @@ defmodule Affirm.TestHelpers do
     )
   end
 
-  @spec successful_capture_response_string(String.t, String.t) :: String.t
+  @spec successful_capture_response_string(String.t(), String.t()) :: String.t()
   def successful_capture_response_string(amount, fee) do
     ~s({"fee":#{fee},"created":"2016-03-18T00:03:44Z","order_id":"JKLM4321","currency":"USD",
     "amount":#{amount},"type":"capture","id":"O5DZHKL942503649","transaction_id":"6dH0LrrgUaMD7Llc"})
   end
 
-  @spec successful_void_response_string() :: String.t
+  @spec successful_void_response_string() :: String.t()
   def successful_void_response_string() do
     ~s({"type":"void","id":"N5E9OXSIDJ8TKZZ9","transaction_id":"G9TqohxBlRPWTGB2",
     "created":"2014-03-17T22:52:16Z","order_id":"JLKM4321"})
   end
 
-  @spec successful_refund_response_string(String.t, String.t) :: String.t
+  @spec successful_refund_response_string(String.t(), String.t()) :: String.t()
   def successful_refund_response_string(amount, fee_refunded) do
     ~s({"created":"2014-03-18T19:20:30Z","fee_refunded":#{fee_refunded},"amount":#{amount},"type":"refund",
     "id":"OWA49MWUCA29SBVQ","transaction_id":"r86zdkHONPcaiVJJ"})
   end
 
-  @spec failed_response_string(String.t) :: String.t
+  @spec failed_response_string(String.t()) :: String.t()
   def failed_response_string(code) do
     ~s({"status_code": 200, "code": "#{code}", "transaction_id": "12864241"})
   end
 
-  @spec successful_read_response_string() :: String.t
+  @spec successful_read_response_string() :: String.t()
   def successful_read_response_string() do
     ~s({"id":"ALO4-UVGR","status":"auth","created":"2016-03-18T19:19:04Z","currency":"USD","amount":6100,
     "auth_hold":6100,"payable":0,"void":false,"expires":"2016-04-18T19:19:04Z","order_id":"JKLM4321",

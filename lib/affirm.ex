@@ -21,7 +21,7 @@ defmodule Affirm do
   defmodule ConfigError do
     defexception [:message]
 
-    @spec exception(String.t) :: struct
+    @spec exception(String.t()) :: struct
     def exception(value) do
       message = "missing config for :#{value}"
 
