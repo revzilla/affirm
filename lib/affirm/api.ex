@@ -18,7 +18,7 @@ defmodule Affirm.API do
   @spec authorize(map) :: {:ok, Response.t()} | {:error, String.t()}
   def authorize(params) do
     :post
-    |> request("", params, headers, options)
+    |> request("", params, headers(), options())
     |> parse_response
   end
 
@@ -29,7 +29,7 @@ defmodule Affirm.API do
   @spec capture(String.t(), map) :: {:ok, Response.t()} | {:error, String.t()}
   def capture(charge_id, params) do
     :post
-    |> request("/#{charge_id}/capture", params, headers, options)
+    |> request("/#{charge_id}/capture", params, headers(), options())
     |> parse_response
   end
 
@@ -40,7 +40,7 @@ defmodule Affirm.API do
   @spec void(String.t()) :: {:ok, Response.t()} | {:error, String.t()}
   def void(charge_id) do
     :post
-    |> request("/#{charge_id}/void", %{}, headers, options)
+    |> request("/#{charge_id}/void", %{}, headers(), options())
     |> parse_response
   end
 
@@ -51,7 +51,7 @@ defmodule Affirm.API do
   @spec refund(String.t(), map) :: {:ok, Response.t()} | {:error, String.t()}
   def refund(charge_id, params) do
     :post
-    |> request("/#{charge_id}/refund", params, headers, options)
+    |> request("/#{charge_id}/refund", params, headers(), options())
     |> parse_response
   end
 
@@ -63,7 +63,7 @@ defmodule Affirm.API do
   @spec read(String.t()) :: {:ok, Response.t()} | {:error, String.t()}
   def read(charge_id) do
     :get
-    |> request("/#{charge_id}", %{}, headers, options)
+    |> request("/#{charge_id}", %{}, headers(), options())
     |> parse_response(false)
   end
 
@@ -77,7 +77,7 @@ defmodule Affirm.API do
   defp parse_response({:error, reason}, _), do: {:error, reason}
 
   @spec headers() :: list(tuple)
-  defp headers do
+  defp headers() do
     [
       {"Content-Type", "application/json"},
       {"Authorization", basic_auth(Affirm.get_env(:public_key), Affirm.get_env(:private_key))}
@@ -85,7 +85,7 @@ defmodule Affirm.API do
   end
 
   @spec options() :: keyword()
-  defp options do
+  defp options() do
     [
       {:timeout, 15_000},
       {:recv_timeout, 15_000}
