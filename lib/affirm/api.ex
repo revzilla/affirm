@@ -80,7 +80,7 @@ defmodule Affirm.API do
   defp headers do
     [
       {"Content-Type", "application/json"},
-      {"Authorization", basic_auth(public_key, private_key)}
+      {"Authorization", basic_auth(Affirm.get_env(:public_key), Affirm.get_env(:private_key))}
     ]
   end
 
@@ -96,7 +96,4 @@ defmodule Affirm.API do
   defp basic_auth(user, pass) do
     "Basic " <> :base64.encode("#{user}:#{pass}")
   end
-
-  defp public_key, do: Affirm.get_env(:public_key)
-  defp private_key, do: Affirm.get_env(:private_key)
 end
