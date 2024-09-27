@@ -10,6 +10,8 @@ defmodule Affirm.API do
   import Affirm.HTTP
   alias Affirm.Response
 
+  @type api_response() :: {:ok, Response.t()} | {:error, Affirm.HTTP.error()}
+
   @doc """
   Affirm's Authorize endpoint requires post data containing a `checkout_token`
   and takes an optional `order_id`. If the token is valid, the request will return
@@ -67,7 +69,7 @@ defmodule Affirm.API do
     |> parse_response(false)
   end
 
-  @spec parse_response(Affirm.HTTP.response(), boolean) :: {:ok, Affirm.Response.t()} | {:error, Affirm.HTTP.error()}
+  @spec parse_response(Affirm.HTTP.response(), boolean()) :: api_response()
   defp parse_response(response, is_transactional \\ true)
 
   defp parse_response({:ok, body}, is_transactional) do
