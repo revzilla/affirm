@@ -15,35 +15,12 @@ defmodule Affirm.HTTP do
   use HTTPoison.Base
 
   @spec request(atom, binary, binary, headers, Keyword.t()) ::
-          {:error, Affirm.Response.t()}
-          | {:ok, term()}
+          {:ok, term()}
+          | {:error, Affirm.Response.t()}
+          | {:error, String.t()}
           | {:error, atom()}
           | {:error, term()}
-          | {:error, String.t()}
   def request(method, url, body, headers \\ [], options \\ []) do
-    # super/4 is an injected function, whose final statement calls HTTPoison.Base.request, which can be seen here:
-    # https://github.com/edgurgel/httpoison/blob/fc22bf8c5142015b7f8cd70737b51fd97a9d9206/lib/httpoison/base.ex#L464
-    # Its return type:
-    #     {:ok, Response.t | AsyncResponse.t} | {:error, Error.t}
-    # The httpoison.ex file defines a ton of structs:
-    #     https://github.com/edgurgel/httpoison/blob/fc22bf8c5142015b7f8cd70737b51fd97a9d9206/lib/httpoison.ex
-    # Here are the stuct deps:
-    #     defmodule HTTPoison.Response do
-    #       defstruct status_code: nil, body: nil, headers: [], request_url: nil
-    #       @type t :: %__MODULE__{status_code: integer, body: term, headers: list}
-    #     end
-    #
-    #     defmodule HTTPoison.AsyncResponse do
-    #       defstruct id: nil
-    #       @type t :: %__MODULE__{id: reference}
-    #     end
-    #
-    #     defmodule HTTPoison.Error do
-    #       defexception reason: nil, id: nil
-    #       @type t :: %__MODULE__{id: reference | nil, reason: any}
-    #       def message(%__MODULE__{reason: reason, id: nil}), do: inspect(reason)
-    #       def message(%__MODULE__{reason: reason, id: id}), do: "[Reference: #{id}] - #{inspect reason}"
-    #     end
     method
     |> super(full_url(url), body, headers, options)
     |> process_response
@@ -74,7 +51,6 @@ defmodule Affirm.HTTP do
     end
   end
 
-  # {:error, Affirm.Response.t()}
   defp process_response({:ok, %HTTPoison.Response{status_code: 200, body: %{code: error_code} = body}}) do
     case fetch_error_code(error_code) do
       nil -> {:error, Affirm.Response.new(%{message: body["message"]})}
@@ -82,24 +58,15 @@ defmodule Affirm.HTTP do
     end
   end
 
-  # {:ok, term()}
-  # term() b/c the httpoison response body is typed with term()
   defp process_response({:ok, %HTTPoison.Response{status_code: code, body: body}})
        when code >= 200 and code <= 399,
        do: {:ok, body}
 
-  # {:error, atom()}
   defp process_response({:ok, %HTTPoison.Response{status_code: 400}}), do: {:error, :invalid_request}
-  # {:error, atom()}
   defp process_response({:ok, %HTTPoison.Response{status_code: 401}}), do: {:error, :unauthorized}
-  # {:error, atom()}
   defp process_response({:ok, %HTTPoison.Response{status_code: 404}}), do: {:error, :not_found}
-  # {:error, term()}
-  # term() b/c the httpoison response body is typed with term()
   defp process_response({:ok, %HTTPoison.Response{body: body}}), do: {:error, body}
-  # {:error, atom()}
   defp process_response({:error, ":econnrefused"}), do: {:error, :econnrefused}
-  # {:error, String.t()}
   defp process_response({:error, %HTTPoison.Error{reason: reason}}), do: {:error, inspect(reason)}
 
   @doc """
