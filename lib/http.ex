@@ -72,24 +72,23 @@ defmodule Affirm.HTTP do
     end
   end
 
-  @doc false
-  def process_response({:ok, %{status_code: 200, body: %{code: error_code} = body}}) do
+  defp process_response({:ok, %{status_code: 200, body: %{code: error_code} = body}}) do
     case fetch_error_code(error_code) do
       nil -> {:error, Affirm.Response.new(%{message: body["message"]})}
       message -> {:error, Affirm.Response.new(%{message: message})}
     end
   end
 
-  def process_response({:ok, %{status_code: code, body: body}})
+  defp process_response({:ok, %{status_code: code, body: body}})
        when code >= 200 and code <= 399,
        do: {:ok, body}
 
-  def process_response({:ok, %{status_code: 400}}), do: {:error, :invalid_request}
-  def process_response({:ok, %{status_code: 401}}), do: {:error, :unauthorized}
-  def process_response({:ok, %{status_code: 404}}), do: {:error, :not_found}
-  def process_response({:ok, %{body: body}}), do: {:error, body}
-  def process_response({:error, ":econnrefused"}), do: {:error, :econnrefused}
-  def process_response({_code, %HTTPoison.Error{reason: reason}}), do: {:error, inspect(reason)}
+  defp process_response({:ok, %{status_code: 400}}), do: {:error, :invalid_request}
+  defp process_response({:ok, %{status_code: 401}}), do: {:error, :unauthorized}
+  defp process_response({:ok, %{status_code: 404}}), do: {:error, :not_found}
+  defp process_response({:ok, %{body: body}}), do: {:error, body}
+  defp process_response({:error, ":econnrefused"}), do: {:error, :econnrefused}
+  defp process_response({_code, %HTTPoison.Error{reason: reason}}), do: {:error, inspect(reason)}
 
   @doc """
   Provides a mapping from returned error code to error String.
