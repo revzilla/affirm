@@ -67,7 +67,7 @@ defmodule Affirm.API do
     |> parse_response(false)
   end
 
-  @spec parse_response(Affirm.HTTP.response(), boolean) :: {:ok, Response.t()} | {:error, String.t()}
+  @spec parse_response(Affirm.HTTP.response(), boolean) :: {:ok, Affirm.Response.t()} | {:error, Affirm.HTTP.error()}
   defp parse_response(response, is_transactional \\ true)
 
   defp parse_response({:ok, body}, is_transactional) do
