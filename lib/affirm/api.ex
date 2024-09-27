@@ -17,7 +17,7 @@ defmodule Affirm.API do
   and takes an optional `order_id`. If the token is valid, the request will return
   a `charge_id` that should be saved for future transactions.
   """
-  @spec authorize(map) :: {:ok, Response.t()} | {:error, String.t()}
+  @spec authorize(map()) :: api_response()
   def authorize(params) do
     :post
     |> request("", params, headers(), options())
@@ -28,7 +28,7 @@ defmodule Affirm.API do
   Capture takes a `charge_id` and optional map of post data. Will return a `Affirm.Response`
   struct containing details of the successful capture transaction.
   """
-  @spec capture(String.t(), map) :: {:ok, Response.t()} | {:error, String.t()}
+  @spec capture(String.t(), map()) :: api_response()
   def capture(charge_id, params) do
     :post
     |> request("/#{charge_id}/capture", params, headers(), options())
@@ -39,7 +39,7 @@ defmodule Affirm.API do
   Capture takes a `charge_id`. Will return a `Affirm.Response`
   struct containing details of the successful void transaction.
   """
-  @spec void(String.t()) :: {:ok, Response.t()} | {:error, String.t()}
+  @spec void(String.t()) :: api_response()
   def void(charge_id) do
     :post
     |> request("/#{charge_id}/void", %{}, headers(), options())
@@ -50,7 +50,7 @@ defmodule Affirm.API do
   Refund takes a `charge_id` and a map containing a refund `amount`.
   Will return a `Affirm.Response` struct containing details of the successful return transaction.
   """
-  @spec refund(String.t(), map) :: {:ok, Response.t()} | {:error, String.t()}
+  @spec refund(String.t(), map()) :: api_response()
   def refund(charge_id, params) do
     :post
     |> request("/#{charge_id}/refund", params, headers(), options())
@@ -62,7 +62,7 @@ defmodule Affirm.API do
   Will return an `Affirm.Response` struct containing current charge status.
   Used to prevent duplicate charge attempts.
   """
-  @spec read(String.t()) :: {:ok, Response.t()} | {:error, String.t()}
+  @spec read(String.t()) :: api_response()
   def read(charge_id) do
     :get
     |> request("/#{charge_id}", %{}, headers(), options())
