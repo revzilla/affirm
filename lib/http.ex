@@ -19,6 +19,29 @@ defmodule Affirm.HTTP do
   @spec request(atom, binary, binary, headers, Keyword.t()) ::
           {:ok, Response.t() | AsyncResponse.t()} | {:error, integer, Response.t()} | {:error, atom | String.t()}
   def request(method, url, body, headers \\ [], options \\ []) do
+    # super/4 is an injected function, whose final statement calls HTTPoison.Base.request, which can be seen here:
+    # https://github.com/edgurgel/httpoison/blob/fc22bf8c5142015b7f8cd70737b51fd97a9d9206/lib/httpoison/base.ex#L464
+    # Its return type:
+    #     {:ok, Response.t | AsyncResponse.t} | {:error, Error.t}
+    # The httpoison.ex file defines a ton of structs:
+    #     https://github.com/edgurgel/httpoison/blob/fc22bf8c5142015b7f8cd70737b51fd97a9d9206/lib/httpoison.ex
+    # Here are the stuct deps:
+    #     defmodule HTTPoison.Response do
+    #       defstruct status_code: nil, body: nil, headers: [], request_url: nil
+    #       @type t :: %__MODULE__{status_code: integer, body: term, headers: list}
+    #     end
+    #
+    #     defmodule HTTPoison.AsyncResponse do
+    #       defstruct id: nil
+    #       @type t :: %__MODULE__{id: reference}
+    #     end
+    #
+    #     defmodule HTTPoison.Error do
+    #       defexception reason: nil, id: nil
+    #       @type t :: %__MODULE__{id: reference | nil, reason: any}
+    #       def message(%__MODULE__{reason: reason, id: nil}), do: inspect(reason)
+    #       def message(%__MODULE__{reason: reason, id: id}), do: "[Reference: #{id}] - #{inspect reason}"
+    #     end
     method
     |> super(full_url(url), body, headers, options)
     |> process_response
