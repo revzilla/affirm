@@ -14,12 +14,16 @@ defmodule Affirm.HTTP do
   """
   use HTTPoison.Base
 
-  @spec request(atom, binary, binary, headers, Keyword.t()) ::
-          {:ok, term()}
+  @typep httpoison_response_body() :: term()
+
+  @type response() ::
+          {:ok, httpoison_response_body()}
+          | {:error, httpoison_response_body()}
           | {:error, Affirm.Response.t()}
           | {:error, String.t()}
           | {:error, atom()}
-          | {:error, term()}
+
+  @spec request(atom, binary, binary, headers, Keyword.t()) :: response()
   def request(method, url, body, headers \\ [], options \\ []) do
     method
     |> super(full_url(url), body, headers, options)
@@ -51,6 +55,7 @@ defmodule Affirm.HTTP do
     end
   end
 
+  @spec process_response(tuple()) :: response()
   defp process_response({:ok, %HTTPoison.Response{status_code: 200, body: %{code: error_code} = body}}) do
     case fetch_error_code(error_code) do
       nil -> {:error, Affirm.Response.new(%{message: body["message"]})}
