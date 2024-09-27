@@ -72,6 +72,7 @@ defmodule Affirm.HTTP do
     end
   end
 
+  # {:error, Affirm.Response.t()}
   defp process_response({:ok, %HTTPoison.Response{status_code: 200, body: %{code: error_code} = body}}) do
     case fetch_error_code(error_code) do
       nil -> {:error, Affirm.Response.new(%{message: body["message"]})}
@@ -79,15 +80,24 @@ defmodule Affirm.HTTP do
     end
   end
 
+  # {:ok, term()}
+  # term() b/c the httpoison response body is typed with term()
   defp process_response({:ok, %HTTPoison.Response{status_code: code, body: body}})
        when code >= 200 and code <= 399,
        do: {:ok, body}
 
+  # {:error, atom()}
   defp process_response({:ok, %HTTPoison.Response{status_code: 400}}), do: {:error, :invalid_request}
+  # {:error, atom()}
   defp process_response({:ok, %HTTPoison.Response{status_code: 401}}), do: {:error, :unauthorized}
+  # {:error, atom()}
   defp process_response({:ok, %HTTPoison.Response{status_code: 404}}), do: {:error, :not_found}
+  # {:error, term()}
+  # term() b/c the httpoison response body is typed with term()
   defp process_response({:ok, %HTTPoison.Response{body: body}}), do: {:error, body}
+  # {:error, atom()}
   defp process_response({:error, ":econnrefused"}), do: {:error, :econnrefused}
+  # {:error, String.t()}
   defp process_response({:error, %HTTPoison.Error{reason: reason}}), do: {:error, inspect(reason)}
 
   @doc """
