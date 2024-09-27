@@ -58,8 +58,8 @@ defmodule Affirm.HTTP do
   end
 
   def process_response({:ok, %{status_code: code, body: body}})
-      when code >= 200 and code <= 399,
-      do: {:ok, body}
+       when code >= 200 and code <= 399,
+       do: {:ok, body}
 
   def process_response({:ok, %{status_code: 400}}), do: {:error, :invalid_request}
   def process_response({:ok, %{status_code: 401}}), do: {:error, :unauthorized}
