@@ -73,7 +73,7 @@ defmodule Affirm.HTTP do
   Affirm also provides this message in the returned response, but this
   provides an easier way of mocking/testing.
   """
-  @spec fetch_error_code(String.t()) :: String.t()
+  @spec fetch_error_code(String.t()) :: String.t() | nil
   def fetch_error_code(error_code) do
     # credo:disable-for-lines:2 Credo.Check.Readability.MaxLineLength
     code_map = %{
