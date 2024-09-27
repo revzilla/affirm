@@ -16,12 +16,13 @@ defmodule Affirm.HTTP do
 
   @typep httpoison_response_body() :: term()
 
-  @type response() ::
-          {:ok, httpoison_response_body()}
-          | {:error, httpoison_response_body()}
-          | {:error, Affirm.Response.t()}
-          | {:error, String.t()}
-          | {:error, atom()}
+  @type error() ::
+          httpoison_response_body()
+          | atom()
+          | String.t()
+          | Affirm.Response.t()
+
+  @type response() :: {:ok, httpoison_response_body()} | {:error, error()}
 
   @spec request(atom, binary, binary, headers, Keyword.t()) :: response()
   def request(method, url, body, headers \\ [], options \\ []) do
