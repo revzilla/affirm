@@ -13,11 +13,13 @@ defmodule Affirm.HTTP do
       private_key: "affirm_supplied_private_key"
   """
   use HTTPoison.Base
-  alias HTTPoison.Response
-  alias HTTPoison.AsyncResponse
 
   @spec request(atom, binary, binary, headers, Keyword.t()) ::
-          {:ok, Response.t() | AsyncResponse.t()} | {:error, integer, Response.t()} | {:error, atom | String.t()}
+          {:error, Affirm.Response.t()}
+          | {:ok, term()}
+          | {:error, atom()}
+          | {:error, term()}
+          | {:error, String.t()}
   def request(method, url, body, headers \\ [], options \\ []) do
     # super/4 is an injected function, whose final statement calls HTTPoison.Base.request, which can be seen here:
     # https://github.com/edgurgel/httpoison/blob/fc22bf8c5142015b7f8cd70737b51fd97a9d9206/lib/httpoison/base.ex#L464
